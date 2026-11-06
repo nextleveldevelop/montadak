@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>تقرير شامل عن منتدى «منتداك» (Montadak)</title>
+<style>
+:root{--a:#0f766e;--b:#115e59;--line:#cfe3dc;--bg:#f3f8f6;--ink:#12312d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Tahoma,"Segoe UI",Arial,sans-serif;line-height:1.9}
+header{background:linear-gradient(135deg,var(--a),var(--b) 60%,#164e63);color:#fff;padding:2rem 1rem;text-align:center}
+header h1{margin:0;font-size:1.8rem}header p{margin:.4rem 0 0;opacity:.92}
+main{max-width:1000px;margin:1.2rem auto;padding:0 1rem}
+section{background:#fff;border:1px solid var(--line);border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1.1rem;box-shadow:0 3px 12px rgba(15,118,110,.07)}
+h2{margin:0 0 .7rem;color:var(--b);font-size:1.3rem;border-bottom:3px solid var(--a);display:inline-block;padding-bottom:.2rem}
+h3{margin:1.1rem 0 .4rem;color:var(--a);font-size:1.08rem}
+table{width:100%;border-collapse:collapse;margin:.5rem 0;font-size:.93rem}
+th,td{border:1px solid var(--line);padding:.45rem .6rem;text-align:start;vertical-align:top}
+th{background:#e8f4f0;color:var(--b)}
+code{background:#eef4f2;padding:.05rem .4rem;border-radius:6px;direction:ltr;unicode-bidi:embed;font-size:.88em}
+pre{background:#12312d;color:#e6f5f0;padding:1rem;border-radius:12px;overflow-x:auto;direction:ltr;text-align:left;font-size:.85rem;line-height:1.6}
+.note{background:#fff8e1;border:1px solid #f0d78a;border-radius:12px;padding:.7rem 1rem;margin:.7rem 0}
+.good{background:#effaf5;border:1px solid #9fd8bf;border-radius:12px;padding:.7rem 1rem;margin:.7rem 0}
+ul{padding-inline-start:1.4rem;margin:.3rem 0}
+.toc a{color:var(--a);text-decoration:none}.toc li{margin:.15rem 0}
+.scroll{overflow-x:auto}
+@media print{body{background:#fff}section{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<header>
+<h1>تقرير شامل عن منتدى «منتداك» (Montadak)</h1>
+<p>شرح الملفات والمزايا وقاعدة البيانات والحماية، وشرح مفصل لخوارزمية التفوق</p>
+</header>
+<main>
+
+<section class="toc">
+<h2>الفهرس</h2>
+<ol>
+<li><a href="#s1">نظرة عامة</a></li>
+<li><a href="#s2">بنية المشروع</a></li>
+<li><a href="#s3">شرح الملفات</a></li>
+<li><a href="#s4">المزايا حسب المجال</a></li>
+<li><a href="#s5">الأدوار والصلاحيات</a></li>
+<li><a href="#s6">قاعدة البيانات</a></li>
+<li><a href="#s7">الحماية والأمان</a></li>
+<li><a href="#s8">خوارزمية التفوق (تقييم العضو بالنجوم)</a></li>
+<li><a href="#s9">الرتب حسب عدد المشاركات</a></li>
+<li><a href="#s10">ملاحظات تقنية ومقترحات</a></li>
+</ol>
+</section>
+
+<section id="s1">
+<h2>1) نظرة عامة</h2>
+<p><b>منتداك</b> سكريبت منتديات عربي مكتوب بـ <b>PHP</b> (بدون إطار عمل) مع قاعدة بيانات <b>MySQL / MariaDB</b>، بواجهة عربية من اليمين لليسار ووضع داكن وتصميم متجاوب.</p>
+<table>
+<tr><th>البند</th><th>القيمة (من الملف المرفق)</th></tr>
+<tr><td>عدد الملفات</td><td>88 ملفًا، منها 70 ملف PHP و4 ملفات JavaScript وملف CSS واحد (نحو 9.7 ألف سطر)</td></tr>
+<tr><td>أكبر ملفات الشيفرة</td><td><code>includes/functions.php</code> (1764 سطرًا) ثم <code>thread.php</code> (552) ثم <code>install.php</code> (515) ثم <code>includes/extras.php</code> (513)</td></tr>
+<tr><td>المتطلبات</td><td>PHP 7.4+ مع mysqli وmbstring وjson وsession (وgd وfileinfo موصى بهما لرفع الصور)، وMySQL 5.6+ / MariaDB 10.1+ بمحرك InnoDB، وخادم Apache يدعم <code>.htaccess</code></td></tr>
+<tr><td>التثبيت</td><td>معالج <code>install.php</code> بأربع خطوات، يقفل نفسه ويحذف نفسه بعد النجاح</td></tr>
+<tr><td>الأيقونات</td><td>Heroicons (رخصة MIT) — الرخصة في <code>assets/ICONS-LICENSE.txt</code></td></tr>
+<tr><td>المكتبات الخارجية</td><td>محرر النصوص Quill 1.3.7 فقط (يُحمّل من CDN)؛ كل الرسوم البيانية SVG مولّدة من PHP</td></tr>
+</table>
+</section>
+
+<section id="s2">
+<h2>2) بنية المشروع</h2>
+<pre>montadak/
+├── index.php, forum.php, thread.php, profile.php ...   ← صفحات الواجهة (جذر المشروع)
+├── admin/            ← لوحة الإدارة (المنتديات، الأعضاء، الإحصائيات، الإعدادات، الوسوم ...)
+├── includes/         ← القلب: bootstrap, db, functions, layout, notify, extras, icons
+├── assets/           ← css/style.css  |  js/ (app, sidebar, editor, messenger)  |  images/
+├── config/           ← config.php (يُنشأ بالتثبيت) + config.sample.php + حماية .htaccess
+├── install/          ← schema.sql (هيكل قاعدة البيانات) + حماية .htaccess
+├── install.php       ← معالج التثبيت
+├── robots.php, sitemap.php   ← يولّدان robots.txt و sitemap.xml ديناميكيًا
+└── .htaccess         ← إعادة الكتابة + منع الوصول للملفات الحساسة</pre>
+<p>المبدأ المعماري: كل صفحة تشغّل منطقها أولًا (قراءة/كتابة/تحويل) ثم تستدعي <code>page_header()</code> ... <code>page_footer()</code>، لذلك تحدث كل عمليات التحويل قبل إرسال أي HTML. ملفات <code>includes/</code> لا تطبع شيئًا بنفسها.</p>
+</section>
+
+<section id="s3">
+<h2>3) شرح الملفات</h2>
+
+<h3>أ) النواة — <code>includes/</code></h3>
+<div class="scroll"><table>
+<tr><th>الملف</th><th>وظيفته</th></tr>
+<tr><td><code>bootstrap.php</code></td><td>يُحمَّل أول كل صفحة: يتحقق من وجود الإعدادات (وإلا يحوّل لـ <code>install.php</code>)، ويحمّل الإعدادات والمكتبات، ويبدأ الجلسة بإعدادات آمنة، ويرسل الترويسات الأمنية، ويشغّل ترقيات الجداول التلقائية. يعرّف ثوابت مثل 20 موضوعًا و15 ردًا في الصفحة، ونافذة المتصل 5 دقائق، وحد المشاركة 20000 حرف.</td></tr>
+<tr><td><code>db.php</code></td><td>غلاف صغير لـ mysqli: كل استعلام Prepared Statement (دوال <code>db_all</code> و<code>db_row</code> و<code>db_val</code> و<code>db_exec</code> و<code>db_transaction</code>) ويدعم المنفذ المخصص.</td></tr>
+<tr><td><code>functions.php</code></td><td>أكبر ملف: دوال الصلاحيات والأدوار، حماية CSRF، تنقية HTML للمحرر (القائمة البيضاء)، رتب العضو، الترقيم، تنسيق التواريخ، الحظر والكتم، سياسة كلمة السر، إعدادات الموقع، وroبوتس وخريطة الموقع.</td></tr>
+<tr><td><code>layout.php</code></td><td>هيكل الصفحة: الترويسة والشريط الجانبي والتذييل، جدول المواضيع، قائمة خيارات الموضوع، تنقل لوحة الإدارة، وترويسة الصفحات <code>page_hero()</code>.</td></tr>
+<tr><td><code>notify.php</code></td><td>الإشعارات ونظام المتابعة، وجداول الإشعارات والمتابعات والحظر في منتدى معين وسجل الإشراف والترشيحات، وإنشاء «المنتدى الإشرافي» لكل قسم تلقائيًا.</td></tr>
+<tr><td><code>extras.php</code></td><td>الحفظ (المحفظة)، عدّاد المشاركات، المنشورات القصيرة (المواضيع الصغيرة) وإعجاباتها ومشاركاتها، وسوم المنشورات ومتابعتها، خلفية العضوية ورفعها بأمان، شكل الصفحة الرئيسية، <b>خوارزمية التفوق</b>، وصيغة المؤنث (مشرفة، مديرة ...).</td></tr>
+<tr><td><code>icons.php</code></td><td>مجموعة أيقونات Heroicons تُطبع مرة واحدة في الصفحة (SVG sprite) ويُستدعى منها <code>icon('home')</code>.</td></tr>
+</table></div>
+
+<h3>ب) الصفحات العامة وصفحات الأعضاء</h3>
+<div class="scroll"><table>
+<tr><th>الملف</th><th>وظيفته</th></tr>
+<tr><td><code>index.php</code></td><td>الصفحة الرئيسية: جدول الأقسام والمنتديات (مع قفل ظاهر للمنتدى المقفول وأيقونة المشرفين)، وعمود «من صفحات الأعضاء» للمنشورات القصيرة. الإدارة تختار: الجدول فقط / المنشورات فقط / الاثنان.</td></tr>
+<tr><td><code>forum.php</code></td><td>صفحة المنتدى: ترويسة (أيقونة، اسم، وصف، المشرفون)، شريط أدوات (موضوع جديد، متابعة، بريد المنتدى، إدارة، الانتقال لمنتدى آخر) وجدول المواضيع بأيقونات.</td></tr>
+<tr><td><code>thread.php</code></td><td>صفحة الموضوع: المشاركات والردود، صندوق معلومات الكاتب (الرتبة، النجوم ونسبة التفوق، المتابعون)، الإعجاب والحفظ والمشاركة والتبليغ والاقتباس والإخفاء، الاستفتاء، وأدوات الإشراف.</td></tr>
+<tr><td><code>new_thread.php</code> / <code>edit_post.php</code></td><td>إنشاء موضوع (مع استفتاء اختياري) وتعديل مشاركة أو رد.</td></tr>
+<tr><td><code>profile.php</code></td><td>صفحة العضوية: غلاف وخلفية، صورة، إحصائيات (مشاركات، متابعون، يتابع)، نجوم التفوق، النبذة، بيانات اختيارية الظهور، آخر المواضيع، المنشورات القصيرة، وشريط أدوات الإشراف.</td></tr>
+<tr><td><code>members.php</code> / <code>online.php</code></td><td>قائمة الأعضاء بجدول احترافي وبحث وترتيب (30 في الصفحة)، وقائمة المتواجدين الآن مع قواعد الإخفاء (15 في الصفحة).</td></tr>
+<tr><td><code>search.php</code></td><td>بحث متقدم: كلمات، كاتب الموضوع، منتدى، العناوين فقط أو النص الكامل.</td></tr>
+<tr><td><code>tag.php</code>, <code>mini.php</code></td><td>صفحة الوسم، وعرض/إنشاء/تعديل/حذف المنشور القصير (أقل من 300 كلمة).</td></tr>
+<tr><td><code>register.php</code>, <code>login.php</code>, <code>logout.php</code></td><td>التسجيل (مع اختيار الجنس الذي لا يتغير)، الدخول مع تحديد المحاولات، والخروج.</td></tr>
+</table></div>
+
+<h3>ج) الحساب والإعدادات الشخصية</h3>
+<div class="scroll"><table>
+<tr><th>الملف</th><th>وظيفته</th></tr>
+<tr><td><code>settings.php</code></td><td>لوحة بطاقات «خيارات وبيانات عضويتك».</td></tr>
+<tr><td><code>account.php</code></td><td>صفحة واحدة لأدوات الحساب: كلمة السر، البريد، البيانات الشخصية (مع خيارات إظهار الاسم/الدولة/الحالة الاجتماعية/تاريخ الميلاد)، الصورة، خلفية العضوية، المحادثة الفورية، طلب تغيير الاسم، وإخفاء التواجد.</td></tr>
+<tr><td><code>timezone.php</code></td><td>حفظ المنطقة الزمنية للعضو أو للزائر.</td></tr>
+<tr><td><code>wallet.php</code>, <code>save.php</code></td><td>المحفظة الشخصية (مواضيع وردود ومنشورات محفوظة) وعملية الحفظ.</td></tr>
+<tr><td><code>follows.php</code>, <code>follow.php</code>, <code>tag_follow.php</code></td><td>صفحة متابعاتي (أعضاء، منتديات، مواضيع، وسوم) وعمليات المتابعة.</td></tr>
+<tr><td><code>block.php</code></td><td>منع عضو من مراسلتك (المدير يتجاوزه دائمًا).</td></tr>
+</table></div>
+
+<h3>د) الرسائل والإشعارات</h3>
+<div class="scroll"><table>
+<tr><th>الملف</th><th>وظيفته</th></tr>
+<tr><td><code>inbox.php</code>, <code>message.php</code>, <code>send_message.php</code>, <code>conversation.php</code></td><td>الوارد والمُرسل وقراءة الرسالة وإرسالها وعرض المراسلات مع عضو.</td></tr>
+<tr><td><code>live_api.php</code> + <code>assets/js/messenger.js</code></td><td>المحادثة الفورية (شبيهة بالماسنجر) على جدول الرسائل نفسه، مفعّلة افتراضيًا، والروابط داخلها قابلة للضغط.</td></tr>
+<tr><td><code>notifications.php</code>, <code>notif_api.php</code></td><td>صفحة الإشعارات (15 في الصفحة) وواجهة JSON لعدّاد الإشعارات الفوري.</td></tr>
+<tr><td><code>share.php</code>, <code>mini_share.php</code>, <code>announce.php</code></td><td>مشاركة موضوع أو منشور قصير مع أعضاء برسالة خاصة، وإعلان موضوع لقائمة أعضاء.</td></tr>
+<tr><td><code>forum_mail.php</code></td><td>بريد المنتدى: الأعضاء يراسلون مشرفي المنتدى والمشرفون يشتركون في صندوق واحد.</td></tr>
+</table></div>
+
+<h3>هـ) التفاعل مع المحتوى (نقاط POST)</h3>
+<div class="scroll"><table>
+<tr><th>الملف</th><th>وظيفته</th></tr>
+<tr><td><code>like.php</code>, <code>mini_like.php</code></td><td>إعجاب / إلغاء إعجاب بموضوع أو رد أو منشور قصير.</td></tr>
+<tr><td><code>poll_vote.php</code></td><td>التصويت في الاستفتاء (صوت واحد لكل عضو، أو عدة خيارات إن سمح الاستفتاء).</td></tr>
+<tr><td><code>report.php</code></td><td>تبليغ عن مشاركة لمشرفي المنتدى.</td></tr>
+<tr><td><code>preview.php</code>, <code>upload_image.php</code></td><td>معاينة المشاركة بنفس المنقّي، ورفع الصور للمحرر بحماية كاملة (فحص النوع الحقيقي، إعادة الترميز، حد الحجم والأبعاد، اسم عشوائي، 20 صورة/ساعة).</td></tr>
+</table></div>
+
+<h3>و) الإشراف</h3>
+<div class="scroll"><table>
+<tr><th>الملف</th><th>وظيفته</th></tr>
+<tr><td><code>moderate.php</code></td><td>إجراءات المواضيع والردود: تثبيت، قفل، إخفاء الموضوع أو الرد، نقل، حذف (للمدير ولصاحب المحتوى فقط).</td></tr>
+<tr><td><code>moderation.php</code></td><td>لوحة الرقابة: التبليغات، بريد المنتدى، سجل العقوبات.</td></tr>
+<tr><td><code>member_log.php</code></td><td>سجل العقوبات الحالية والسابقة لعضو، ونماذج التحذير والكتم (في منتدى أو عدة منتديات أو الكل للمدير) والترشيح للإشراف.</td></tr>
+<tr><td><code>sanction.php</code>, <code>forum_ban.php</code></td><td>تنفيذ التحذير والكتم، ومنع الكتابة المؤقت في منتدى معين.</td></tr>
+<tr><td><code>member_admin.php</code>, <code>lock_request.php</code></td><td>ترشيح مشرف (المشرف يرشّح والمدير يعيّن)، قفل/فتح العضوية، إزالة الإشراف، الترقية لنائب مدير، وطلب قفل العضوية.</td></tr>
+<tr><td><code>forum_edit.php</code>, <code>reorder.php</code></td><td>تعديل المنتدى (للمدير فقط)، وترتيب الأقسام والمنتديات.</td></tr>
+</table></div>
+
+<h3>ز) لوحة الإدارة — <code>admin/</code></h3>
+<div class="scroll"><table>
+<tr><th>الملف</th><th>وظيفته</th></tr>
+<tr><td><code>index.php</code></td><td>نظرة عامة وتنبيه أمني إن بقي <code>install.php</code> على الخادم.</td></tr>
+<tr><td><code>stats.php</code></td><td>إحصائيات: ست بطاقات مؤشرات، رسم خطي لنشاط 14 يومًا، رسم دائري لتوزيع المحتوى، أشرطة أنشط المنتديات، أنشط الأعضاء، وأكثر المواضيع قراءة (SVG بدون مكتبات).</td></tr>
+<tr><td><code>forums.php</code></td><td>إنشاء وتعديل وحذف الأقسام والمنتديات (10 في الصفحة)، نوع المنتدى (للجميع / للمشرفين والمدير / للمدير ونائبه)، القفل، وحدود المشاركة اليومية.</td></tr>
+<tr><td><code>users.php</code></td><td>إدارة الأعضاء (30 في الصفحة) مع فلاتر: المحظورون، المكتومون، عليهم تحذير، حسب المنتدى وحسب المشرف الذي نفّذ.</td></tr>
+<tr><td><code>moderators.php</code></td><td>تعيين وإزالة المشرفين لكل منتدى.</td></tr>
+<tr><td><code>requests.php</code>, <code>renames.php</code></td><td>طلبات القفل والترشيحات، وطلبات تغيير الأسماء.</td></tr>
+<tr><td><code>settings.php</code></td><td>إعدادات المنتدى: الاسم والتعريف والشعار وإظهاره، خريطة الموقع، وتحرير <code>robots.txt</code>.</td></tr>
+<tr><td><code>home.php</code></td><td>اختيار شكل الصفحة الرئيسية.</td></tr>
+<tr><td><code>tags.php</code></td><td>إنشاء وسوم المنشورات القصيرة (تظهر تلقائيًا في قائمة الاختيار).</td></tr>
+</table></div>
+
+<h3>ح) الأصول والتثبيت وملفات أخرى</h3>
+<div class="scroll"><table>
+<tr><th>الملف</th><th>وظيفته</th></tr>
+<tr><td><code>assets/css/style.css</code></td><td>كل التصميم، مرتب بأقسام (BASE، LAYOUT، المكوّنات المشتركة، الصفحة الرئيسية، المنتدى، الموضوع، العضوية، الحساب، القوائم، المنشورات القصيرة، المحادثة، الإدارة، المحرر، ثم قسم قديم غير مستخدم).</td></tr>
+<tr><td><code>assets/js/app.js</code></td><td>سلوكيات صغيرة بلا مكتبات: سؤال تأكيد قبل إرسال نماذج الحذف، وتعطيل زر الإرسال بعد الضغط لمنع التكرار، وإرسال القوائم المنسدلة تلقائيًا.</td></tr>
+<tr><td><code>assets/js/sidebar.js</code></td><td>القائمة الجانبية (طيّ وتوسيع، ودرج على الهاتف)، ترقيم الجداول الطويلة، الإشعارات، قائمة خيارات الموضوع، ومفتاح الوضع الداكن.</td></tr>
+<tr><td><code>assets/js/editor.js</code></td><td>المحرر (Quill): الصور بعد رفعها، يوتيوب، الجداول القابلة للتعديل، تصغير الصورة وتكبيرها، حجم النص، تراجع وإعادة، ومعاينة.</td></tr>
+<tr><td><code>assets/js/messenger.js</code></td><td>واجهة المحادثة الفورية.</td></tr>
+<tr><td><code>install.php</code> + <code>install/schema.sql</code></td><td>معالج التثبيت وهيكل الجداول.</td></tr>
+<tr><td><code>robots.php</code>, <code>sitemap.php</code></td><td>يولّدان <code>/robots.txt</code> و<code>/sitemap.xml</code> مباشرة: نص robots محفوظ في قاعدة البيانات مع سطر Sitemap تلقائي.</td></tr>
+<tr><td><code>.htaccess</code></td><td>قواعد الكتابة لـ robots وsitemap، ومنع الوصول لملفات حساسة (sql وlog وlock وغيرها).</td></tr>
+</table></div>
+</section>
+
+<section id="s4">
+<h2>4) المزايا حسب المجال</h2>
+<h3>المنتدى والمحتوى</h3>
+<ul>
+<li>أقسام ومنتديات برمجية الترتيب، أيقونة أو صورة لكل منتدى، قفل المنتدى من الإدارة مع علامة قفل ظاهرة.</li>
+<li>مواضيع وردود، تثبيت وقفل وإخفاء ونقل، واستفتاءات (اختيار واحد أو متعدد).</li>
+<li>إعجاب وحفظ ومشاركة وتبليغ واقتباس.</li>
+<li>حدود مشاركة يومية لكل منتدى، وحماية من الإغراق عبر منع الكتابة المؤقت.</li>
+<li>بحث متقدم، وخريطة موقع و<code>robots.txt</code> مضبوط للـ SEO.</li>
+</ul>
+<h3>المحرر</h3>
+<ul>
+<li>تنسيق كامل (عناوين، ألوان، قوائم، اقتباس، شيفرة، روابط، اتجاه RTL/LTR).</li>
+<li>صور مرفوعة بحماية، وتحجيمها داخل المحرر.</li>
+<li>فيديو يوتيوب يظهر مشغّلًا داخل النص.</li>
+<li>جداول احترافية بألوان وإطارات قابلة للتعديل بعد الإدراج.</li>
+<li>تراجع وإعادة، وتغيير حجم النص، ومعاينة قبل النشر.</li>
+</ul>
+<h3>الأعضاء والتواصل</h3>
+<ul>
+<li>صفحة عضوية بتصميم جديد: غلاف قابل للتخصيص (1200×300)، إحصائيات، نبذة، بيانات اختيارية الظهور.</li>
+<li>الجنس يُحدد عند التسجيل ولا يُعدل، ويُطبَّق المؤنث تلقائيًا (مشرفة، مديرة، متصلة الآن، عضوة جديدة).</li>
+<li>متابعة الأعضاء والمنتديات والمواضيع والوسوم، وإشعارات فورية.</li>
+<li>رسائل خاصة، ومحادثة فورية، وبريد المنتدى، ومنع المراسلة، وإخفاء التواجد بقواعد متدرجة حسب الرتبة.</li>
+<li>المحفظة الشخصية: حفظ المواضيع والردود والمنشورات القصيرة.</li>
+<li>المنشورات القصيرة بوسوم: تظهر في صفحة العضوية وفي الصفحة الرئيسية، مع إعجاب وحفظ ومشاركة وعدّادات.</li>
+<li>تقييم العضو بنجوم ونسبة تفوق (القسم 8).</li>
+</ul>
+<h3>الإشراف والإدارة</h3>
+<ul>
+<li>رتب: مدير (مالك رقم 1)، نائب مدير، مشرف لكل منتدى، عضو.</li>
+<li>تحذير وكتم (منتدى، مجموعة منتديات، أو الكل للمدير)، وسجل عقوبات حالية وسابقة.</li>
+<li>ترشيح المشرفين بموافقة المدير، وطلب قفل العضوية.</li>
+<li>إحصائيات مرئية وفلاتر متقدمة وإعدادات الموقع وإدارة الوسوم.</li>
+</ul>
+</section>
+
+<section id="s5">
+<h2>5) الأدوار والصلاحيات</h2>
+<div class="scroll"><table>
+<tr><th>الرتبة</th><th>أهم الصلاحيات والقيود</th></tr>
+<tr><td>زائر</td><td>قراءة المنتديات المفتوحة للجميع؛ لا يرى عمود الخيارات في جدول المواضيع.</td></tr>
+<tr><td>عضو</td><td>كتابة المواضيع والردود وتعديل/حذف ما كتبه هو، الحفظ والمتابعة والمراسلة والمحادثة، نشر منشورات قصيرة، وتخصيص صفحته.</td></tr>
+<tr><td>مشرف (لكل منتدى)</td><td>تثبيت وقفل وإخفاء المواضيع والردود ونقلها، التحذير والكتم في منتدياته فقط، الترشيح للإشراف وطلب قفل العضوية، ويرى المنتدى الإشرافي لقسمه. <b>لا يحذف</b> محتوى غيره ولا يعدّل إعدادات المنتدى.</td></tr>
+<tr><td>نائب المدير</td><td>بصلاحيات المدير تقريبًا، لكنه لا يصبح المدير الأصلي ولا يأخذ مكان العضو رقم 1، ولا يرقّي نوابًا.</td></tr>
+<tr><td>المدير (رقم 1)</td><td>كل شيء: حذف أي موضوع أو رد أو منشور، قفل العضويات، تعيين وإزالة المشرفين، ترقية النواب، الكتم في كل المنتديات، وإدارة الإعدادات والوسوم.</td></tr>
+</table></div>
+<div class="note">المدير والمشرف <b>لا يُقيَّمان</b> بالنجوم. والمدير يستطيع مراسلة أي عضو حتى لو منعه.</div>
+<p><b>إخفاء التواجد:</b> العضو العادي المخفي يراه المشرفون والمدير ونائبه؛ المشرف المخفي يراه المدير ونائبه فقط؛ المدير المخفي يراه المدير الآخر ونائبه فقط؛ والعضو يرى نفسه دائمًا.</p>
+</section>
+
+<section id="s6">
+<h2>6) قاعدة البيانات</h2>
+<p>الجداول الأساسية في <code>install/schema.sql</code> (33 جدولًا)، وتُضاف جداول أخرى تلقائيًا عند أول تشغيل بدوال <code>ensure_*</code> (آمنة للتكرار). عند التثبيت يشغّلها المعالج مباشرة.</p>
+<div class="scroll"><table>
+<tr><th>المجموعة</th><th>الجداول</th></tr>
+<tr><td>الأعضاء والصلاحيات</td><td><code>users</code>, <code>forum_staff</code>, <code>category_staff</code>, <code>user_blocks</code>, <code>login_attempts</code>, <code>login_log</code>, <code>visitors</code>, <code>rename_requests</code>, <code>account_requests</code></td></tr>
+<tr><td>المنتديات والمحتوى</td><td><code>forums</code>, <code>threads</code>, <code>replies</code>, <code>thread_access</code>, <code>thread_reads</code>, <code>post_likes</code>, <code>polls</code>, <code>poll_options</code>, <code>poll_votes</code></td></tr>
+<tr><td>الرسائل والإشعارات</td><td><code>messages</code>, <code>forum_mail</code>, <code>notifications</code>, <code>follows</code>, <code>chat_typing</code>, <code>announce_members</code></td></tr>
+<tr><td>الإشراف</td><td><code>sanctions</code>, <code>reports</code>, <code>forum_bans</code>, <code>mod_log</code>, <code>staff_nominations</code></td></tr>
+<tr><td>المنشورات القصيرة والمحفظة</td><td><code>user_posts</code>, <code>mini_tags</code>, <code>mini_likes</code>, <code>mini_shares</code>, <code>tag_follows</code>, <code>saved_items</code>, <code>thread_shares</code>, <code>user_uploads</code></td></tr>
+<tr><td>الإعدادات</td><td><code>site_settings</code> (مفتاح/قيمة، منها نص robots وشكل الصفحة الرئيسية)</td></tr>
+</table></div>
+<div class="note">جداول قديمة بقيت في الهيكل لكنها لم تعد تُستخدم بعد حذف المزايا: <code>badges</code>, <code>user_badges</code>, <code>member_points</code>, <code>member_titles</code>, <code>user_titles</code>, <code>member_lists</code>, <code>member_list_items</code>, <code>favorite_threads</code>, <code>favorite_forums</code>, <code>chat_messages</code>, <code>user_files</code>, <code>supervisor_nominations</code>. يمكن حذفها بعد النسخ الاحتياطي.</div>
+</section>
+
+<section id="s7">
+<h2>7) الحماية والأمان</h2>
+<ul>
+<li><b>حقن SQL:</b> كل الاستعلامات Prepared Statements عبر <code>db.php</code>.</li>
+<li><b>CSRF:</b> رمز لكل نموذج POST والتحقق بـ <code>hash_equals</code>.</li>
+<li><b>XSS:</b> الإخراج بـ <code>e()</code> لكل ما يدخله المستخدم، ومحتوى المحرر يمر على منقٍّ بقائمة بيضاء (وسوم وسمات محددة، وتنقية أنماط الجداول، وصور موقعك فقط، ويوتيوب فقط يُعاد بناؤه من المعرّف).</li>
+<li><b>كلمات السر:</b> <code>password_hash</code>، وسياسة 10 أحرف على الأقل بحروف وأرقام ورموز.</li>
+<li><b>الجلسات:</b> كوكي HttpOnly وSameSite، وإعادة توليد المعرّف عند الدخول، وتحديد محاولات الدخول.</li>
+<li><b>الرفع:</b> فحص النوع الحقيقي، حد الحجم والأبعاد، إعادة ترميز بـ GD، أسماء عشوائية، ومنع تنفيذ PHP في مجلدات الصور بـ <code>.htaccess</code>.</li>
+<li><b>ترويسات:</b> سياسة CSP، ومنع الإطارات (X-Frame-Options)، ومنع تخمين النوع (nosniff)، وسياسة المُحيل.</li>
+<li><b>الملفات الحساسة:</b> <code>config/</code> و<code>install/</code> و<code>includes/</code> محجوبة عن الويب، ومعالج التثبيت يقفل نفسه.</li>
+<li><b>الخصوصية:</b> تُخزَّن عناوين IP مبتورة (الجزء الأول فقط).</li>
+<li><b>الصلاحيات:</b> التحقق من الرتبة داخل ملفات التنفيذ نفسها (مثل <code>sanction.php</code> و<code>moderate.php</code>) وليس في الواجهة فقط.</li>
+</ul>
+<div class="note">هذه قراءة وبحث في الكود وليست اختبار اختراق حقيقيًا. يوصى بفحص أمني مستقل قبل الإطلاق.</div>
+</section>
+
+<section id="s8">
+<h2>8) خوارزمية التفوق (تقييم العضو بالنجوم)</h2>
+<p>الدالة: <code>member_rating($uid)</code> في <code>includes/extras.php</code>، ويعرضها <code>rating_html()</code> في صفحة العضوية وتحت اسم الكاتب في صفحة الموضوع. الناتج: <b>نجوم من 0 إلى 10</b> و<b>نسبة تفوق من 0 إلى 100%</b>.</p>
+
+<h3>أولًا: من يُقيَّم ومن لا يُقيَّم</h3>
+<ul>
+<li>المدير ونائبه (role = admin) والمشرفون (في أي منتدى): <b>لا يُقيَّمون</b> (الدالة تعيد <code>null</code> ولا تظهر نجوم).</li>
+<li>العضو العادي فقط يُحسب له التقييم.</li>
+</ul>
+
+<h3>ثانيًا: المدخلات الستة</h3>
+<p>يُحسب فقط ما يفعله <b>الآخرون</b> لمحتواك، ولا تُحسب إعجابات العضو أو حفظه أو مشاركته لمحتواه هو (<code>user_id &lt;&gt; $uid</code> في كل استعلام).</p>
+<div class="scroll"><table>
+<tr><th>الرمز</th><th>المعنى</th><th>طريقة الحساب</th><th>الهدف (الحد الأقصى)</th><th>الوزن</th></tr>
+<tr><td>T</td><td>المواضيع</td><td>عدد مواضيعه غير المخفية</td><td>500</td><td>0.35</td></tr>
+<tr><td>R</td><td>الردود</td><td>عدد ردوده غير المخفية</td><td>1000</td><td>0.08</td></tr>
+<tr><td>L</td><td>الإعجابات المستلمة</td><td>إعجابات الآخرين بمواضيعه وردوده ومنشوراته القصيرة</td><td>500</td><td>0.25</td></tr>
+<tr><td>S</td><td>مرات الحفظ</td><td>حفظ الآخرين لمواضيعه وردوده ومنشوراته</td><td>150</td><td>0.12</td></tr>
+<tr><td>H</td><td>المشاركات</td><td>مشاركة الآخرين لمواضيعه ومنشوراته مع غيرهم</td><td>100</td><td>0.08</td></tr>
+<tr><td>F</td><td>المتابعون</td><td>عدد الأعضاء المختلفين الذين يتابعونه</td><td>200</td><td>0.12</td></tr>
+</table></div>
+<p>مجموع الأوزان = 1.00 (35% للمواضيع، 25% للإعجابات، 12% للحفظ، 12% للمتابعين، 8% للردود، 8% للمشاركات).</p>
+
+<h3>ثالثًا: المعادلة</h3>
+<p>لكل مدخل تُحسب نسبة تقدمه نحو هدفه بمنحنى «عوائد متناقصة» (الجذر 0.4)، فأول الإنجازات تُكافأ أكثر، ثم يبطؤ الصعود:</p>
+<pre>p(x, target) = min( 1 , (x / target) ^ 0.4 )
+
+score = 0.35·p(T,500) + 0.08·p(R,1000) + 0.25·p(L,500)
+      + 0.12·p(S,150) + 0.08·p(H,100)  + 0.12·p(F,200)
+
+pct   = floor( score × 100 )          // 0 .. 100
+stars = floor( pct / 10 )             // 0 .. 10</pre>
+
+<h3>رابعًا: سقوف صارمة (لا تتجاوزها النسبة مهما كانت بقية الأرقام)</h3>
+<div class="scroll"><table>
+<tr><th>الشرط</th><th>الحد الأقصى للنسبة</th></tr>
+<tr><td>أقل من 5 مواضيع</td><td>10%</td></tr>
+<tr><td>أقل من 20 موضوعًا</td><td>25%</td></tr>
+<tr><td>أقل من 50 موضوعًا</td><td>35%</td></tr>
+<tr><td>أقل من 100 موضوع</td><td><b>49%</b> (لا يصل 50% قبل 100 موضوع)</td></tr>
+<tr><td>من 100 إلى 249</td><td>74%</td></tr>
+<tr><td>من 250 إلى 500</td><td>94%</td></tr>
+<tr><td>أكثر من 500</td><td>حتى 100%</td></tr>
+<tr><td>تفاعل الآخرين صفر (L+S+H+F = 0)</td><td>30%</td></tr>
+<tr><td>إعجابات أقل من 10</td><td>40%</td></tr>
+<tr><td>إعجابات من 10 إلى 29</td><td>49%</td></tr>
+<tr><td>(الحفظ + المشاركات) أقل من 5</td><td>69%</td></tr>
+<tr><td>للوصول إلى 100%: أقل من 300 إعجاب أو 50 حفظًا أو 20 مشاركة</td><td>99%</td></tr>
+</table></div>
+<p>النسبة النهائية = أصغر قيمة بين <code>pct</code> وكل السقوف المنطبقة.</p>
+<div class="good">الفكرة: الكمية وحدها (مشاركات كثيرة بلا تفاعل) لا تصنع نجومًا كثيرة؛ يجب أن يُقدّر الآخرون المحتوى بالإعجاب والحفظ والمشاركة والمتابعة. وللوصول إلى 50% يلزم أكثر من 100 موضوع مع عشرات الإعجابات وبعض الحفظ والمشاركات.</div>
+
+<h3>خامسًا: أمثلة محسوبة بالصيغة نفسها</h3>
+<div class="scroll"><table>
+<tr><th>الحالة</th><th>T</th><th>R</th><th>L</th><th>S</th><th>H</th><th>F</th><th>الناتج الخام</th><th>السقف</th><th>النهائي</th><th>النجوم</th></tr>
+<tr><td>عضو جديد</td><td>2</td><td>5</td><td>0</td><td>0</td><td>0</td><td>0</td><td>4%</td><td>10%</td><td>4%</td><td>0</td></tr>
+<tr><td>نشيط بلا تفاعل</td><td>60</td><td>200</td><td>0</td><td>0</td><td>0</td><td>0</td><td>19%</td><td>30%</td><td>19%</td><td>1</td></tr>
+<tr><td>مبتدئ</td><td>15</td><td>40</td><td>12</td><td>3</td><td>1</td><td>4</td><td>22%</td><td>25%</td><td>22%</td><td>2</td></tr>
+<tr><td>متوسط</td><td>60</td><td>150</td><td>40</td><td>8</td><td>4</td><td>12</td><td>37%</td><td>49%</td><td>37%</td><td>3</td></tr>
+<tr><td>100 موضوع</td><td>100</td><td>300</td><td>60</td><td>12</td><td>6</td><td>20</td><td>45%</td><td>74%</td><td>45%</td><td>4</td></tr>
+<tr><td>متقدم</td><td>250</td><td>600</td><td>200</td><td>50</td><td>20</td><td>80</td><td>70%</td><td>94%</td><td>70%</td><td>7</td></tr>
+<tr><td>محترف</td><td>500</td><td>900</td><td>400</td><td>120</td><td>60</td><td>150</td><td>93%</td><td>94%</td><td>93%</td><td>9</td></tr>
+</table></div>
+
+<h3>سادسًا: ملاحظات على الخوارزمية</h3>
+<div class="note">
+<ul>
+<li><b>خلل حسابي صغير:</b> عند بلوغ كل الأهداف تمامًا يجب أن تكون النسبة 100%، لكن جمع الأوزان بالأعداد العشرية قد يعطي 0.9999999 فيُقرّب <code>floor</code> الناتج إلى 99%. فعمليًا قد لا يظهر 100% أبدًا. الحل: <code>floor($score * 100 + 1e-9)</code> أو <code>round</code>. أنبّه إليه لأنني لاحظته عند محاكاة الصيغة (الحالة 600/1200/500/150/100/200 أعطت 99%).</li>
+<li>التقييم يُحسب لحظيًا من قاعدة البيانات في كل عرض (مع تخزين مؤقت داخل الطلب الواحد فقط): دقيق، لكنه يضيف نحو 7 استعلامات لكل كاتب في صفحة الموضوع. إن كبر المنتدى، يُفضل تخزين النتيجة وتحديثها دوريًا.</li>
+<li>الإعجابات المحسوبة تشمل إعجابات المواضيع والردود والمنشورات القصيرة؛ وحذف المحتوى المخفي يخفض T وR.</li>
+</ul>
+</div>
+</section>
+
+<section id="s9">
+<h2>9) الرتب حسب عدد المشاركات (نظام منفصل)</h2>
+<p>الدالة <code>rank_info()</code> في <code>functions.php</code> تعطي عنوان رتبة حسب مجموع مشاركات العضو (مواضيع + ردود)، وهي مستقلة عن خوارزمية التفوق. لا تظهر لها نجوم الآن (الدالة <code>stars_html</code> أُوقفت)، ويظهر عنوان الرتبة فقط في صفحة العضوية للأعضاء العاديين (وليس للإدارة والمشرفين).</p>
+<div class="scroll"><table>
+<tr><th>المشاركات من</th><th>0</th><th>10</th><th>50</th><th>150</th><th>300</th><th>600</th><th>1000</th><th>2500</th><th>6000</th><th>15000</th><th>30000</th></tr>
+<tr><td>العنوان</td><td>عضو جديد</td><td>عضو</td><td>عضو نشيط</td><td>عضو متميز</td><td>عضو مميز جدًا</td><td>عضو ذهبي</td><td>عضو خبير</td><td>عضو بارز</td><td>عضو عريق</td><td>عضو أسطوري</td><td>عضو الشرف</td></tr>
+</table></div>
+<p>تتحول العناوين إلى صيغة المؤنث تلقائيًا للعضوات (عضوة جديدة، عضوة نشيطة ...).</p>
+</section>
+
+<section id="s10">
+<h2>10) ملاحظات تقنية ومقترحات</h2>
+<ul>
+<li><b>تنظيف قاعدة البيانات:</b> حذف الجداول القديمة غير المستخدمة (القسم 6) بعد نسخ احتياطي.</li>
+<li><b>تنظيف CSS:</b> قسم LEGACY في آخر <code>style.css</code> (نحو 161 قاعدة) غير مستخدم ويمكن حذفه بعد التجربة.</li>
+<li><b>أداء:</b> تخزين نتيجة التفوق (انظر القسم 8)، وإضافة فهارس إن كبر عدد المواضيع.</li>
+<li><b>الاعتماد على CDN:</b> محرر Quill يُحمّل من CDN؛ لاستقلال تام يُنزَّل محليًا ثم يُعدَّل CSP.</li>
+<li><b>الاختبار:</b> السكريبت بحاجة إلى اختبار تشغيلي حقيقي (تثبيت، تسجيل، نشر، صلاحيات) على نسخة تجريبية؛ لم أستطع تشغيل PHP أثناء إعداد النسخ.</li>
+<li><b>خريطة الموقع وroبوتس:</b> إذا ثُبّت المنتدى في مجلد فرعي، يقرأ محرك البحث <code>robots.txt</code> من جذر الدومين فقط، فأضف هناك سطر Sitemap يدويًا.</li>
+</ul>
+</section>
+
+<section>
+<p style="margin:0;text-align:center;color:#5b6f6a">أُعدّ هذا التقرير من قراءة الملف <code>montadak.zip</code> مباشرة (88 ملفًا).</p>
+</section>
+</main>
+</body>
+</html>
